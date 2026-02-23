@@ -21,6 +21,25 @@
   --shadow:     0 4px 24px rgba(0,0,0,0.4);
 }
 
+/* Light theme overrides */
+.light-theme {
+  --bg:         #f7fafc;
+  --surface:    #ffffff;
+  --surface2:   #fbfbfd;
+  --surface3:   #f1f5f9;
+  --border:     #e6e9ef;
+  --accent:     #6b46ff;
+  --accent-h:   #7c6aff;
+  --accent-dim: #6b46ff11;
+  --danger:     #e11d48;
+  --danger-dim: #ffeef2;
+  --success:    #059669;
+  --text:       #0f172a;
+  --text-muted: #475569;
+  --text-dim:   #64748b;
+  --shadow:     0 6px 20px rgba(16,24,40,0.06);
+}
+
 html, body, #root {
   height: 100%;
   background: var(--bg);
@@ -229,4 +248,77 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   .company-grid { grid-template-columns: 1fr; }
   .page-header { flex-direction: column; align-items: flex-start; }
   .navbar { padding: 0 16px; }
+}
+
+/* Additional responsive tweaks */
+@media (max-width: 900px) {
+  .container { padding: 0 16px; }
+  .page-header { gap: 12px; }
+  .company-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .company-card-header { padding: 14px 16px; }
+  .model-item { padding: 10px 14px; }
+  .modal { max-width: 92%; }
+  .navbar { height: 56px; padding: 0 16px; }
+  .navbar-brand span { display: none; }
+  .navbar-brand .logo { font-size: 1.5rem; }
+  .navbar-actions { gap: 6px; }
+  .btn { padding: 7px 12px; font-size: 0.85rem; }
+}
+
+@media (max-width: 480px) {
+  html, body, #root { font-size: 14px; }
+  .container { padding: 0 12px; }
+  .login-card { padding: 24px; max-width: 95%; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .page-header > div { width: 100%; }
+  .page-header .btn, .page-header .btn-primary { width: 100%; }
+  .company-grid { grid-template-columns: 1fr; gap: 12px; }
+  .company-card-header { padding: 12px 14px; }
+  .company-emoji { font-size: 1.6rem; }
+  .model-item { padding: 10px 12px; font-size: 0.9rem; }
+  .model-item .model-item-count { padding: 4px 8px; font-size: 0.72rem; }
+  .model-header { gap: 8px; }
+  .modal { max-width: 96%; margin: 0 6px; }
+  .manage-table { display: block; width: 100%; overflow-x: auto; }
+  .manage-table th, .manage-table td { white-space: nowrap; }
+  .problem-card-header { padding: 12px 14px; }
+  .problem-body { padding: 12px 14px; }
+  .navbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .navbar-brand span { display: inline-block; }
+}
+
+/* Improve touch targets and spacing on very small screens */
+@media (max-width: 360px) {
+  .btn { padding: 8px 10px; font-size: 0.82rem; }
+  .form-control { padding: 10px; font-size: 0.9rem; }
+  .modal-footer { flex-direction: column-reverse; gap: 8px; }
+}
+
+/* Mobile menu styles */
+.mobile-toggle { display: none; }
+.mobile-menu {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 600;
+  display: flex; align-items: flex-start; justify-content: flex-end; padding: 20px;
+}
+.mobile-menu-inner {
+  width: 320px; max-width: 92%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); overflow: hidden;
+}
+.mobile-menu-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); }
+.mobile-menu-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+@media (max-width: 900px) {
+  .mobile-toggle { display: inline-flex; }
+  /* hide most action buttons on small screens but keep admin badge and manage link visible */
+  .navbar-actions > .btn { display: none; }
+  .navbar-actions > .btn.manage-btn { display: inline-flex; }
+  .navbar-actions > .btn.logout-btn { display: inline-flex; }
+  .navbar-actions > .btn.theme-toggle { display: inline-flex; }
+  .navbar-actions > .admin-badge { display: inline-flex; }
+  .nav-user { display: none; }
+  .navbar-actions { gap: 6px; align-items: center; }
+}
+
+@media (min-width: 901px) {
+  .mobile-menu { display: none; }
 }

@@ -15,6 +15,7 @@ export default function ModelDetailPage() {
   const [company, setCompany]     = useState(null);
   const [problems, setProblems]   = useState([]);
   const [expanded, setExpanded]   = useState({});
+  const [search, setSearch]       = useState('');
   const [editProblem, setEditProblem] = useState(null);
   const [showAdd, setShowAdd]     = useState(false);
   const [companies, setCompanies] = useState([]);
@@ -33,7 +34,8 @@ export default function ModelDetailPage() {
     })();
 
     const unsub = onSnapshot(
-      query(collection(db, 'problems'), where('modelId', '==', modelId), orderBy('createdAt', 'desc')),
+      // query(collection(db, 'problems'), where('modelId', '==', modelId), orderBy('createdAt', 'desc')),
+      query(collection(db, 'problems'), where('modelId', '==', modelId)),
       snap => setProblems(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     );
     return () => unsub();
@@ -86,6 +88,18 @@ export default function ModelDetailPage() {
           )}
         </div>
 
+        {/* Search input for filtering problems */}
+        {problems.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <input
+              className="form-control"
+              placeholder="Search problems or solutions…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        )}
+
         {problems.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🔍</div>
@@ -97,39 +111,60 @@ export default function ModelDetailPage() {
             </p>
           </div>
         ) : (
-          <div className="problems-list">
-            {problems.map(p => (
-              <div key={p.id} className="problem-card">
-                <div className="problem-card-header" onClick={() => toggle(p.id)}>
-                  <div style={{ flex: 1 }}>
-                    <div className="problem-title">{p.problem}</div>
-                    <div className="problem-meta">
-                      Added {p.createdAt?.toDate?.().toLocaleDateString() ?? '—'}
-                      {p.updatedAt && ' · Edited ' + p.updatedAt.toDate().toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="problem-actions" onClick={(e) => e.stopPropagation()}>
-                    {isAdmin && (
-                      <>
-                        <button className="btn btn-sm btn-secondary" onClick={() => setEditProblem(p)}>✏ Edit</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(p.id)}>✕</button>
-                      </>
-                    )}
-                    <span style={{ color: 'var(--text-muted)', marginLeft: 4, cursor: 'pointer' }}
-                          onClick={() => toggle(p.id)}>
-                      {expanded[p.id] ? '▲' : '▼'}
-                    </span>
-                  </div>
+          (() => {
+            const q = search.trim().toLowerCase();
+            const filtered = q ? problems.filter(p => (
+              (p.problem || '').toLowerCase().includes(q) || (p.solution || '').toLowerCase().includes(q)
+            )) : problems;
+
+            if (filtered.length === 0) {
+              return (
+                <div className="empty-state">
+                  <div className="empty-icon">🔎</div>
+                  <h3>No results</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>
+                    {q ? `No matches for "${search}".` : 'No problems logged yet.'}
+                  </p>
                 </div>
-                {expanded[p.id] && (
-                  <div className="problem-body">
-                    <div className="solution-label">✅ Solution</div>
-                    <div className="solution-text">{p.solution || 'No solution provided yet.'}</div>
+              );
+            }
+
+            return (
+              <div className="problems-list">
+                {filtered.map(p => (
+                  <div key={p.id} className="problem-card">
+                    <div className="problem-card-header" onClick={() => toggle(p.id)}>
+                      <div style={{ flex: 1 }}>
+                        <div className="problem-title">{p.problem}</div>
+                        <div className="problem-meta">
+                          Added {p.createdAt?.toDate?.().toLocaleDateString() ?? '—'}
+                          {p.updatedAt && ' · Edited ' + p.updatedAt.toDate().toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="problem-actions" onClick={(e) => e.stopPropagation()}>
+                        {isAdmin && (
+                          <>
+                            <button className="btn btn-sm btn-secondary" onClick={() => setEditProblem(p)}>✏ Edit</button>
+                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(p.id)}>✕</button>
+                          </>
+                        )}
+                        <span style={{ color: 'var(--text-muted)', marginLeft: 4, cursor: 'pointer' }}
+                              onClick={() => toggle(p.id)}>
+                          {expanded[p.id] ? '▲' : '▼'}
+                        </span>
+                      </div>
+                    </div>
+                    {expanded[p.id] && (
+                      <div className="problem-body">
+                        <div className="solution-label">✅ Solution</div>
+                        <div className="solution-text">{p.solution || 'No solution provided yet.'}</div>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()
         )}
       </div>
 
